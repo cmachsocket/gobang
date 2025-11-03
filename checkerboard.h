@@ -47,7 +47,7 @@ private:
 
     static int alpha_beta(int, int, int, int, int, int);
 
-    inline static int clac_single_pos(int x, int y, int i,int ply);
+    inline static int clac_single_pos(int x, int y,int ply);
 
     static int empty_extend(int, int, int, int);
 

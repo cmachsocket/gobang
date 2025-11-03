@@ -130,7 +130,7 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
                     //is_max=!is_max;depth++;
                     int tmp = alpha_beta(i, j, alph, beta, depth + 1, -is_max);
                     //if (depth == 1)
-                        //qDebug() << tar_x << tar_y << alph << tmp << i << j;
+                    //qDebug() << tar_x << tar_y << alph << tmp << i << j;
                     if (tmp > alph) {
                         alph = tmp;
 
@@ -165,12 +165,14 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
     }
 }
 
-inline int checkerboard::clac_single_pos(int x, int y, int i,int ply) {
-    int tri_count=0,ans=0;
-    int tmp = clac_extend(i, x, y, ply);
-    if (tmp >= 4)tri_count++;
-    ans += scores[tmp];
-    if (tri_count > 1)ans += scores[MAX_SCORE];
+inline int checkerboard::clac_single_pos(int x, int y, int ply) {
+    int tri_count = 0, ans = 0;
+    for (int i = 1; i <= MAX_DIRECT; i++) {
+        int tmp = clac_extend(i, x, y, ply);
+        if (tmp >= 4)tri_count++;
+        if (tri_count > 1)ans += scores[MAX_SCORE];
+        else ans += scores[tmp];
+    }
     return ans;
 }
 
@@ -179,10 +181,11 @@ int checkerboard::G_evaluate() {
     for (int x = 0; x < MAX_ROW; x++) {
         for (int y = 0; y < MAX_COL; y++) {
             if (put_chess_valid(x, y)) {
-                for (int i = 1; i <= MAX_DIRECT; i++) {
-                    ans+=clac_single_pos( x, y, i,-person_player);
-                    ans-=clac_single_pos( x, y, i,person_player);
+                if (board[7][11]==1 and x==5 and y==9){
+                    qDebug()<<"1";
                 }
+                ans += clac_single_pos(x, y, -person_player);
+                ans -= clac_single_pos(x, y, person_player);
             }
         }
     }
