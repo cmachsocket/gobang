@@ -181,9 +181,6 @@ int checkerboard::G_evaluate() {
     for (int x = 0; x < MAX_ROW; x++) {
         for (int y = 0; y < MAX_COL; y++) {
             if (put_chess_valid(x, y)) {
-                if (board[7][11]==1 and x==5 and y==9){
-                    qDebug()<<"1";
-                }
                 ans += clac_single_pos(x, y, -person_player);
                 ans -= clac_single_pos(x, y, person_player);
             }
