@@ -41,6 +41,7 @@ public:
     static int enc_id(int, int);
 
     static void dec_id(int, int &, int &);
+    static void wrapped_init();
 
 private:
     checkerboard();
@@ -54,7 +55,6 @@ private:
     static int step_y[MAX_DIRECT + 1];
     static void del_chess(int, int, int);
     static int extend_line(int direct, int _player, int x, int y);
-
     inline static bool is_inside(int, int);
 };
 

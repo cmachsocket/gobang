@@ -32,7 +32,7 @@ void checkerboard::add_chess(int x, int y, int ply) {
     for (int i = x - SCALE; i <= x + SCALE; i++) {
         for (int j = y - SCALE; j <= y + SCALE; j++) {
             if (is_inside(i, j)) {
-                _access[i][j]++;
+                board_access[i][j]++;
             }
         }
     }
@@ -44,7 +44,7 @@ void checkerboard::del_chess(int x, int y, int ply) {
         for (int j = y - SCALE; j <= y + SCALE; j++) {
             if (is_inside(i, j)) {
                 //内存泄漏！！！
-                _access[i][j]--;
+                board_access[i][j]--;
             }
         }
     }
@@ -106,13 +106,14 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
         return -is_max * scores[MAX_SCORE] * TIME_LOSE;
     }
     if (depth >= TARGET_DEP) {
+        printf("%d n\n",board[3][3]);
         return G_evaluate(person_player);
     }
 
     if (is_max > 0) {
         for (int i = 0; i < MAX_ROW; i++) {
             for (int j = 0; j < MAX_COL; j++) {
-                if (_access[i][j] and put_chess_valid(i, j)) {
+                if (board_access[i][j] and put_chess_valid(i, j)) {
                     add_chess(i, j, -person_player);
                     //is_max=!is_max;depth++;
                     int tmp = alpha_beta(i, j, alph, beta, depth + 1, -is_max);
@@ -137,7 +138,7 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
     } else {
         for (int i = 0; i < MAX_ROW; i++) {
             for (int j = 0; j < MAX_COL; j++) {
-                if (_access[i][j] and put_chess_valid(i, j)) {
+                if (board_access[i][j] and put_chess_valid(i, j)) {
                     add_chess(i, j, person_player);
                     //is_max=!is_max;depth++;
                     beta = std::min(beta, alpha_beta(i, j, alph, beta, depth + 1, -is_max));
@@ -152,7 +153,7 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
     }
 }
 
-
-
-
+void checkerboard::wrapped_init() {
+    init();
+}
 

@@ -1,45 +1,41 @@
-#include "checkerboard.h"
 #include "libcuda.cuh"
-
-// Definitions of managed globals so they are accessible on both host and device.
-__managed__ int** board;
-__managed__ int** board_access;
-__managed__ int** ans;
-__managed__ int *cuda_step_x ;
-__managed__ int *cuda_step_y ;
-
+#include<stdio.h>
+extern "C"
 void init() {
-    cudaMallocManaged(&board, sizeof(int*) * MAX_ROW);
-    cudaMallocManaged(&board_access, sizeof(int*) * MAX_ROW);
-    cudaMallocManaged(&ans, sizeof(int*) * MAX_ROW);
-    cudaMallocManaged(&cuda_step_x, sizeof(int) * (MAX_DIRECT + 1));
-    cudaMallocManaged(&cuda_step_y, sizeof(int) * (MAX_DIRECT + 1));
+
     cuda_step_x[0] = 0; cuda_step_x[1] = 1; cuda_step_x[2] = -1; cuda_step_x[3] = 0; cuda_step_x[4] = 1;
     cuda_step_y[0] = 0; cuda_step_y[1] = 1; cuda_step_y[2] = 1; cuda_step_y[3] = 1; cuda_step_y[4] = 0;
-    for (int i = 0; i < MAX_ROW; i++) {
-        cudaMallocManaged(&board[i], sizeof(int) * MAX_COL);
-        cudaMallocManaged(&board_access[i], sizeof(int) * MAX_COL);
-        cudaMallocManaged(&ans[i], sizeof(int) * MAX_COL);
+    for (int i=0;i<MAX_ROW;i++){
+        for (int j=0;j<MAX_COL;j++){
+            board[i][j]=EMPTY_POS;
+            board_access[i][j]=0;
+            ans[i][j]=0;
+        }
     }
 }
 
-
+extern "C"
 int G_evaluate(int person_player) {
     int collect_ans = 0;
-    clac_single_pos<<<MAX_ROW, MAX_ROW>>>(-person_player);
-    cudaDeviceSynchronize();
-    for (int x = 0; x < MAX_ROW; x++) {
-        for (int y = 0; y < MAX_COL; y++) {
-            collect_ans+=ans[x][y];
-        }
-    }
+    printf("%d n\n",board[3][3]);
     clac_single_pos<<<MAX_ROW, MAX_COL>>>(-person_player);
     cudaDeviceSynchronize();
     for (int x = 0; x < MAX_ROW; x++) {
         for (int y = 0; y < MAX_COL; y++) {
+
+            collect_ans+=ans[x][y];
+        }
+    }
+    printf("%d 1f\n",collect_ans);
+    clac_single_pos<<<MAX_ROW, MAX_COL>>>(person_player);
+    cudaDeviceSynchronize();
+    for (int x = 0; x < MAX_ROW; x++) {
+        for (int y = 0; y < MAX_COL; y++) {
+            //printf("%d\n",ans[x][y]);
             collect_ans-=ans[x][y];
         }
     }
+    printf("%d df\n",collect_ans);
     return collect_ans;
 }
 
@@ -72,18 +68,19 @@ __device__ __inline__ int clac_extend(int direct, int x, int y, int ply) {
 
 __global__ void clac_single_pos(int ply) {
 
-    int x=blockIdx.x;
-    int y=threadIdx.y;
+    int x = static_cast<int>(blockIdx.x);
+    int y = static_cast<int>(threadIdx.x);
     ans[x][y]=0;
-    if (board[x][y] != EMPTY_POS) {
+    if (board[x][y] != EMPTY_POS and !board_access[x][y]) {
         return ;
     }
     int tri_count = 0, _ans = 0;
     for (int i = 1; i <= MAX_DIRECT; i++) {
         int tmp = clac_extend(i, x, y, ply);
         if (tmp >= 4)tri_count++;
-        if (tri_count > 1)_ans += scores[MAX_SCORE];
-        else _ans += scores[tmp];
+        if (tri_count > 1)_ans += SCORES[MAX_SCORE];
+        else _ans += SCORES[tmp];
     }
     ans[x][y]=_ans;
+
 }

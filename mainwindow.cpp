@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     setFixedSize(1000, 1200);
     //this->setStyleSheet("QMainWindow {background-color:rgb(255, 150, 30)}");
     vBoxLayout = new QVBoxLayout(this->centralWidget());
-
+    checkerboard::wrapped_init();
     MainWindow::_status = new QLabel();
     btn_group->setExclusive(true);
     for (int i = 0; i < MAX_ROW; i++) {
