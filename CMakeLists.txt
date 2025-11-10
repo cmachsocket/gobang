@@ -1,10 +1,7 @@
 cmake_minimum_required(VERSION 4.0)
-project(gobang)
-#set(CMAKE_CROSSCOMPILING 1)
-#set(CMAKE_SYSTEM_NAME Windows)
-#set(CMAKE_C_COMPILER   i686-w64-mingw32-gcc)
-#set(CMAKE_CXX_COMPILER i686-w64-mingw32-g++)
+project(gobang LANGUAGES C CXX CUDA)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CUDA_STANDARD 20)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -16,6 +13,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 find_package(Qt6 REQUIRED COMPONENTS Concurrent)
+find_package(Threads REQUIRED)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 find_package(Qt6 COMPONENTS
         Core
@@ -31,6 +29,8 @@ add_executable(gobang main.cpp
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        cuda.cu
+        libcuda.cuh
 
 )
 target_link_libraries(gobang
@@ -38,4 +38,5 @@ target_link_libraries(gobang
         Qt::Gui
         Qt::Widgets
         Qt6::Concurrent
+        Threads::Threads
 )

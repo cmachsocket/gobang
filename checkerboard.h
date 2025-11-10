@@ -47,24 +47,13 @@ private:
 
     static int alpha_beta(int, int, int, int, int, int);
 
-    inline static int clac_single_pos(int x, int y,int ply);
-
-    static int empty_extend(int, int, int, int);
-
     //static int depth,is_max;
-    static int G_evaluate();
 
     static int player, person_player, tar_x, tar_y;
-    static int board[MAX_ROW][MAX_COL];
-    static int access[MAX_ROW][MAX_COL];
     static int step_x[MAX_DIRECT + 1];
     static int step_y[MAX_DIRECT + 1];
-
     static void del_chess(int, int, int);
-
-    static int clac_extend(int, int, int, int);
-
-    inline static int extend_line(int, int, int, int);
+    static int extend_line(int direct, int _player, int x, int y);
 
     inline static bool is_inside(int, int);
 };
