@@ -1,5 +1,10 @@
 #include "checkerboard.h"
+
+#include <list>
+#include <list>
 #include<QDebug>
+#include <utility>
+
 #include "libcuda.cuh"
 
 int checkerboard::player = BLACK_POS;
@@ -101,58 +106,62 @@ std::pair<int, int> checkerboard::solve_find(int x, int y) {
     qDebug() << alpha_beta(-1, -1, -INF,INF, 1, 1);
     return std::make_pair(tar_x, tar_y);
 }
+inline bool checkerboard::cmp(std::pair<int,int> x,std::pair<int,int> y) {
+    return board_access[x.first][x.second]>board_access[y.first][y.second];
 
+}
 int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is_max) {
-    //qDebug() << "Button clicked:" ;
-    //assert(alph!=1);
-    //assert(board[5][10]==0);
     if (is_game_over(x, y)) {
         return -is_max * scores[MAX_SCORE] * TIME_LOSE;
     }
     if (depth >= TARGET_DEP) {
-       // printf("%d n\n",board[7][7]);
         return G_evaluate(person_player);
     }
-
-    if (is_max > 0) {
-        for (int i = 0; i < MAX_ROW; i++) {
-            for (int j = 0; j < MAX_COL; j++) {
-                if (board_access[i][j] and put_chess_valid(i, j)) {
-                    add_chess(i, j, -person_player);
-                    //is_max=!is_max;depth++;
-                    int tmp = alpha_beta(i, j, alph, beta, depth + 1, -is_max);
-                    //if (depth == 1)
-                    //qDebug() << tar_x << tar_y << alph << tmp << i << j;
-                    if (tmp > alph) {
-                        alph = tmp;
-
-                        if (depth == 1) {
-                            tar_x = i, tar_y = j;
-                        }
-                    }
-                    //alph = std::max(alph, );
-                    //is_max=!is_max;depth--;
-                    del_chess(i, j, -person_player);
-                }
-                if (alph >= beta) break;
+    std::list<std::pair<int, int> > access_chess_list;
+    for (int i = 0; i < MAX_ROW; i++) {
+        for (int j = 0; j < MAX_COL; j++) {
+            if (board_access[i][j] and put_chess_valid(i, j)) {
+                //assert(i==7 and j==7 and put_chess_valid(i, j));
+                access_chess_list.emplace_back(i, j);
             }
         }
+    }
+    access_chess_list.sort(cmp);
+    if (is_max > 0) {
+        for (auto it: access_chess_list) {
+            int i = it.first, j = it.second;
+            add_chess(i, j, -person_player);
+            //is_max=!is_max;depth++;
+            int tmp = alpha_beta(i, j, alph, beta, depth + 1, -is_max);
+            //if (depth == 1)
+            //qDebug() << tar_x << tar_y << alph << tmp << i << j;
+            if (tmp > alph) {
+                alph = tmp;
+
+                if (depth == 1) {
+                    tar_x = i, tar_y = j;
+                }
+            }
+            //alph = std::max(alph, );
+            //is_max=!is_max;depth--;
+            del_chess(i, j, -person_player);
+            if (alph >= beta) break;
+        }
+        access_chess_list.clear();
         //assert(alph!=1);
         return alph;
     } else {
-        for (int i = 0; i < MAX_ROW; i++) {
-            for (int j = 0; j < MAX_COL; j++) {
-                if (board_access[i][j] and put_chess_valid(i, j)) {
-                    add_chess(i, j, person_player);
-                    //is_max=!is_max;depth++;
-                    beta = std::min(beta, alpha_beta(i, j, alph, beta, depth + 1, -is_max));
-                    //is_max=!is_max;depth--;
-                    del_chess(i, j, person_player);
-                }
-                if (alph >= beta) break;
-            }
+        for (auto it: access_chess_list) {
+            int i = it.first, j = it.second;
+            add_chess(i, j, person_player);
+            //is_max=!is_max;depth++;
+            beta = std::min(beta, alpha_beta(i, j, alph, beta, depth + 1, -is_max));
+            //is_max=!is_max;depth--;
+            del_chess(i, j, person_player);
+            if (alph >= beta) break;
+            //assert(beta!=1);
         }
-        //assert(beta!=1);
+        access_chess_list.clear();
         return beta;
     }
 }

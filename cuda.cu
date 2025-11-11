@@ -1,5 +1,4 @@
 #include "libcuda.cuh"
-#include<stdio.h>
 
 // Define device symbols (must match extern declarations in header)
 

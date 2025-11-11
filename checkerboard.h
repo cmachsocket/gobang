@@ -1,5 +1,6 @@
 #pragma once
 #include<algorithm>
+#include <list>
 #ifndef CHECKERBOARD_H
 #define CHECKERBOARD_H
 
@@ -10,7 +11,7 @@
 #define EMPTY_POS 0
 #define BLACK_POS 1
 #define WHITE_POS (-1)
-#define TARGET_DEP 5
+#define TARGET_DEP 7
 #define SCALE 2
 #define TIME_LOSE 10
 #define MAX_SCORE 5
@@ -55,8 +56,8 @@ private:
     static int player, person_player, tar_x, tar_y;
     static int step_x[MAX_DIRECT + 1];
     static int step_y[MAX_DIRECT + 1];
-    static int bucket[MAX_ROW+MAX_COL][MAX_ROW][MAX_COL];
     static void del_chess(int, int, int);
+    static bool cmp(std::pair<int,int>,std::pair<int,int>);
     static int extend_line(int direct, int _player, int x, int y);
     inline static bool is_inside(int, int);
 };
