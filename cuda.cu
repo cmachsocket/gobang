@@ -13,53 +13,18 @@ void cuda_init() {
 }
 int G_evaluate(int person_player) {
     size_t bytes = MAX_ROW * MAX_COL * sizeof(int);
-    cudaError_t err;
-
-    // copy host board -> device symbol cuda_board
-    err = cudaMemcpyToSymbol(cuda_board, checkerboard::board, bytes);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpyToSymbol(cuda_board) failed: %s\n", cudaGetErrorString(err));
-        return 0;
-    }
-    // copy host board_access -> device symbol cuda_board_access
-    err = cudaMemcpyToSymbol(cuda_board_access, checkerboard::board_access, bytes);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpyToSymbol(cuda_board_access) failed: %s\n", cudaGetErrorString(err));
-        return 0;
-    }
-
-    cudaDeviceSynchronize();
+    cudaMemcpyToSymbol(cuda_board, checkerboard::board, bytes);
+    cudaMemcpyToSymbol(cuda_board_access, checkerboard::board_access, bytes);
     int collect_ans = 0;
     //printf("%d nn\n",cuda_board[7][7]);
-    clac_single_pos<<<MAX_ROW, MAX_COL>>>(-person_player);
+    clac_single_pos<<<MAX_ROW, 32>>>(-person_player);
     cudaDeviceSynchronize();
-
-    // copy device cuda_ans -> host evaluate_ans
-    err = cudaMemcpyFromSymbol(checkerboard::evaluate_ans, cuda_ans, bytes);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpyFromSymbol(cuda_ans) failed: %s\n", cudaGetErrorString(err));
-        return 0;
-    }
-
     for (int x = 0; x < MAX_ROW; x++) {
         for (int y = 0; y < MAX_COL; y++) {
-            collect_ans+=checkerboard::evaluate_ans[x][y];
+            //collect_ans+=checkerboard::evaluate_ans[x][y];
+            collect_ans+=cuda_ans[x][y];
         }
     }
-    clac_single_pos<<<MAX_ROW, MAX_COL>>>(person_player);
-    cudaDeviceSynchronize();
-
-    err = cudaMemcpyFromSymbol(checkerboard::evaluate_ans, cuda_ans, bytes);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpyFromSymbol(cuda_ans) failed: %s\n", cudaGetErrorString(err));
-        return 0;
-    }
-    for (int x = 0; x < MAX_ROW; x++) {
-        for (int y = 0; y < MAX_COL; y++) {
-            collect_ans-=checkerboard::evaluate_ans[x][y];
-        }
-    }
-    //printf("%d df\n",person_player);
     return collect_ans;
 }
 
@@ -104,7 +69,7 @@ __global__ void clac_single_pos(int ply) {
     // if (cuda_board[x][y]==EMPTY_POS and cuda_board_access[x][y]) {
     //     printf("A");
     // }
-    if (cuda_board[x][y] != EMPTY_POS or !cuda_board_access[x][y]) {
+    if (y>=MAX_COL or cuda_board[x][y] != EMPTY_POS or !cuda_board_access[x][y]) {
          return ;
     }
 
@@ -118,5 +83,16 @@ __global__ void clac_single_pos(int ply) {
         else _ans += SCORES[tmp];
     }
     cuda_ans[x][y]=_ans;
+    //为提升性能重复利用
+    tri_count = 0, _ans = 0;
+    for (int i = 1; i <= MAX_DIRECT; i++) {
+        int tmp = clac_extend(i, x, y, -ply);
+        //if (tmp)printf("%d %d %d %d\n",x,y,ply,tmp);
+        if (tmp >= 4)tri_count++;
+        if (tri_count > 1)_ans += SCORES[MAX_SCORE];
+        else _ans += SCORES[tmp];
+    }
+
+    cuda_ans[x][y]-=_ans;
     //printf("FF");
 }

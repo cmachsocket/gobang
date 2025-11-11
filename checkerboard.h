@@ -55,7 +55,7 @@ private:
     static int player, person_player, tar_x, tar_y;
     static int step_x[MAX_DIRECT + 1];
     static int step_y[MAX_DIRECT + 1];
-
+    static int bucket[MAX_ROW+MAX_COL][MAX_ROW][MAX_COL];
     static void del_chess(int, int, int);
     static int extend_line(int direct, int _player, int x, int y);
     inline static bool is_inside(int, int);
