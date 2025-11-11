@@ -2,14 +2,6 @@
 #include<stdio.h>
 
 // Define device symbols (must match extern declarations in header)
-__device__ int cuda_board[MAX_ROW][MAX_COL];
-__device__ int cuda_board_access[MAX_ROW][MAX_COL];
-__device__ int cuda_ans[MAX_ROW][MAX_COL];
-__device__ int cuda_step_x[MAX_DIRECT + 1];
-__device__ int cuda_step_y[MAX_DIRECT + 1];
-
-// Define constant scores on device
-__constant__ int device_scores[6] = {0, 1, 10, 100, 1000, 10000};
 
 __global__ void init() {
     cuda_step_x[0] = 0; cuda_step_x[1] = 1; cuda_step_x[2] = -1; cuda_step_x[3] = 0; cuda_step_x[4] = 1;
@@ -109,18 +101,14 @@ __global__ void clac_single_pos(int ply) {
     int x = static_cast<int>(blockIdx.x);
     int y = static_cast<int>(threadIdx.x);
     cuda_ans[x][y]=0;
-    if (cuda_board[x][y]==EMPTY_POS and cuda_board_access[x][y]) {
-        printf("A");
-    }
-    if (cuda_board[x][y] != EMPTY_POS) {
+    // if (cuda_board[x][y]==EMPTY_POS and cuda_board_access[x][y]) {
+    //     printf("A");
+    // }
+    if (cuda_board[x][y] != EMPTY_POS or !cuda_board_access[x][y]) {
          return ;
     }
 
-    printf("%d %d %d\n",x,y,cuda_board_access[x][y]);
-    if (cuda_board_access[x][y]) {
-        return ;
-    }
-
+    //printf("%d %d %d\n",x,y,cuda_board_access[x][y]);
     int tri_count = 0, _ans = 0;
     for (int i = 1; i <= MAX_DIRECT; i++) {
         int tmp = clac_extend(i, x, y, ply);

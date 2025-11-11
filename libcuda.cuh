@@ -16,15 +16,16 @@
 #endif
 
 // Header should only declare extern globals; the definitions live in the .cu file.
-extern __device__ int cuda_board[MAX_ROW][MAX_COL];
-extern __device__ int cuda_board_access[MAX_ROW][MAX_COL];
-extern __device__ int cuda_ans[MAX_ROW][MAX_COL];
-extern __device__ int cuda_step_x[MAX_DIRECT + 1] ;
-extern __device__ int cuda_step_y[MAX_DIRECT + 1];
+// Use plain extern declarations (no __device__) to avoid duplicate-definition during NVCC compilation.
+ __device__ int cuda_board[MAX_ROW][MAX_COL];
+ __device__ int cuda_board_access[MAX_ROW][MAX_COL];
+ __device__ int cuda_ans[MAX_ROW][MAX_COL];
+ __device__ int cuda_step_x[MAX_DIRECT + 1] ;
+ __device__ int cuda_step_y[MAX_DIRECT + 1];
 
 // Declare device_scores as extern __constant__ when compiling with NVCC. Define it in cuda.cu.
 #ifdef __CUDACC__
-  extern __constant__ int device_scores[6];
+  extern __constant__ int device_scores[6]{0, 1, 10, 100, 1000, 10000};;
   #define SCORES device_scores
 #else
   #define SCORES scores
