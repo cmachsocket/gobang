@@ -6,6 +6,9 @@ int checkerboard::player = BLACK_POS;
 int checkerboard::person_player;
 int checkerboard::step_x[MAX_DIRECT + 1] = {0, 1, -1, 0, 1};
 int checkerboard::step_y[MAX_DIRECT + 1] = {0, 1, 1, 1, 0};
+int checkerboard::board[MAX_COL][MAX_ROW];
+int checkerboard::board_access[MAX_COL][MAX_ROW];
+int checkerboard::evaluate_ans[MAX_COL][MAX_ROW];
 //int checkerboard::depth=1;
 //int checkerboard::is_max=1;
 int checkerboard::tar_x = 0;
@@ -29,6 +32,7 @@ void checkerboard::player_decide() {
 
 void checkerboard::add_chess(int x, int y, int ply) {
     board[x][y] = ply;
+    //printf("%d %d %d !!\n",x,y,board[x][y]);
     for (int i = x - SCALE; i <= x + SCALE; i++) {
         for (int j = y - SCALE; j <= y + SCALE; j++) {
             if (is_inside(i, j)) {
@@ -39,7 +43,6 @@ void checkerboard::add_chess(int x, int y, int ply) {
 }
 
 void checkerboard::del_chess(int x, int y, int ply) {
-    board[x][y] = EMPTY_POS;
     for (int i = x - SCALE; i <= x + SCALE; i++) {
         for (int j = y - SCALE; j <= y + SCALE; j++) {
             if (is_inside(i, j)) {
@@ -48,6 +51,7 @@ void checkerboard::del_chess(int x, int y, int ply) {
             }
         }
     }
+    board[x][y] = EMPTY_POS;
 }
 
 bool checkerboard::put_chess_valid(int x, int y) {
@@ -106,7 +110,7 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
         return -is_max * scores[MAX_SCORE] * TIME_LOSE;
     }
     if (depth >= TARGET_DEP) {
-        printf("%d n\n",board[3][3]);
+       // printf("%d n\n",board[7][7]);
         return G_evaluate(person_player);
     }
 
@@ -154,6 +158,5 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
 }
 
 void checkerboard::wrapped_init() {
-    init();
+    cuda_init();
 }
-
