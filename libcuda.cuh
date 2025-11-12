@@ -19,7 +19,7 @@
 // Use plain extern declarations (no __device__) to avoid duplicate-definition during NVCC compilation.
  __device__ int cuda_board[MAX_ROW][MAX_COL];
  __device__ int cuda_board_access[MAX_ROW][MAX_COL];
- __managed__ int cuda_ans[MAX_ROW][MAX_COL];
+__managed__ int cuda_ans[MAX_ROW][MAX_COL];
  __device__ int cuda_step_x[MAX_DIRECT + 1] ;
  __device__ int cuda_step_y[MAX_DIRECT + 1];
 

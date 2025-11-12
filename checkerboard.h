@@ -17,7 +17,8 @@
 #define MAX_SCORE 5
 
 #define MAX_DIRECT 4
-#define EMPTY_NUM 100
+#define EMPTY_SELF 100
+#define EMPTY_EXTEND 1000
 
 const int scores[5 + 1]{0, 1, 10, 100, 1000, 10000};
 
@@ -45,7 +46,7 @@ public:
     static void wrapped_init();
     static int board[MAX_ROW ][MAX_COL ];
     static int board_access[MAX_ROW][MAX_COL];
-    static int evaluate_ans[MAX_ROW][MAX_COL];
+    static int check_ans[MAX_ROW][MAX_COL];
 private:
     checkerboard();
 

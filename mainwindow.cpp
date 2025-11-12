@@ -57,7 +57,7 @@ void MainWindow::forbid_buttons() {
     for (int i = 0; i < MAX_ROW; i++) {
         for (int j = 0; j < MAX_COL; j++) {
             // keep buttons transparent and borderless; show a disabled-looking text color
-            buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;color:rgb(160,160,160);}");
+            buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;color:rgb(255,255,255);}");
             buttons[i][j]->setEnabled(false);
         }
     }
@@ -67,6 +67,8 @@ void MainWindow::enable_buttons() {
     for (int i = 0; i < MAX_ROW; i++) {
         for (int j = 0; j < MAX_COL; j++) {
             if ((buttons[i][j]->property("is_ocurred")) == false) {
+
+                buttons[i][j]->setText(QString::number(checkerboard::check_ans[i][j]));
                 buttons[i][j]->setEnabled(true);
             }
         }
@@ -89,9 +91,10 @@ void MainWindow::try_add_chess(int id) {
     buttons[row][col]->setProperty("is_ocurred", true);
     if (checkerboard::now_player() == BLACK_POS) {
         buttons[row][col]->setText(BLACK_ICON);
-    } else {
+    } else if (checkerboard::now_player() == WHITE_POS){
         buttons[row][col]->setText(WHITE_ICON);
     }
+
     // ensure placed piece remains on a transparent, borderless button
     buttons[row][col]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;}");
     checkerboard::add_chess(row, col, checkerboard::now_player());

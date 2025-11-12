@@ -13,7 +13,7 @@ int checkerboard::step_x[MAX_DIRECT + 1] = {0, 1, -1, 0, 1};
 int checkerboard::step_y[MAX_DIRECT + 1] = {0, 1, 1, 1, 0};
 int checkerboard::board[MAX_ROW][MAX_COL];
 int checkerboard::board_access[MAX_ROW][MAX_COL];
-int checkerboard::evaluate_ans[MAX_ROW][MAX_COL];
+int checkerboard::check_ans[MAX_ROW][MAX_COL];
 //int checkerboard::depth=1;
 //int checkerboard::is_max=1;
 int checkerboard::tar_x = 0;
@@ -104,6 +104,8 @@ int checkerboard::now_player() {
 std::pair<int, int> checkerboard::solve_find(int x, int y) {
     //depth=0,is_max=1;
     qDebug() << alpha_beta(-1, -1, -INF,INF, 1, 1);
+    qDebug()<<G_evaluate(person_player)<<"?";
+
     return std::make_pair(tar_x, tar_y);
 }
 inline bool checkerboard::cmp(std::pair<int,int> x,std::pair<int,int> y) {
@@ -111,11 +113,13 @@ inline bool checkerboard::cmp(std::pair<int,int> x,std::pair<int,int> y) {
 
 }
 int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is_max) {
+    //printf("%d %d\n",alph,beta);
     if (is_game_over(x, y)) {
         return -is_max * scores[MAX_SCORE] * TIME_LOSE;
     }
     if (depth >= TARGET_DEP) {
-        return G_evaluate(person_player);
+        return G_evaluate(person_player);;
+
     }
     std::list<std::pair<int, int> > access_chess_list;
     for (int i = 0; i < MAX_ROW; i++) {
