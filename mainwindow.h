@@ -11,6 +11,9 @@
 #include <QFuture>
 #include<QLabel>
 #include <QtConcurrent>
+#include <QPixmap>
+#include <QResizeEvent>
+#include <QGridLayout>
 #define BLACK_ICON "\u26AB"
 #define WHITE_ICON "\u26AA"
 
@@ -40,12 +43,18 @@ private:
 
     static QPushButton *buttons[MAX_ROW + 5][MAX_COL + 5];
     static QButtonGroup *btn_group;
-    static QVBoxLayout *vBoxLayout;
-    static QHBoxLayout *hBoxLayout[MAX_ROW];
+    static QGridLayout *layout;
     static QLabel *_status;
 
     static void forbid_buttons();
 
     static void task_finished();
+
+    // background pixmap used for scaling and filling the window
+    QPixmap bg_pixmap;
+    void updateBackground();
+
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 };
 #endif // MAINWINDOW_H

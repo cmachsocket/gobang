@@ -11,7 +11,7 @@
 #define EMPTY_POS 0
 #define BLACK_POS 1
 #define WHITE_POS (-1)
-#define TARGET_DEP 7
+#define TARGET_DEP 5
 #define SCALE 2
 #define TIME_LOSE 10
 #define MAX_SCORE 5

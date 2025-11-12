@@ -31,7 +31,7 @@ add_executable(gobang main.cpp
         mainwindow.ui
         cuda.cu
         libcuda.cuh
-
+        res.qrc
 )
 target_link_libraries(gobang
         Qt::Core

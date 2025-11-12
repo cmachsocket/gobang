@@ -10,31 +10,39 @@ QPushButton *MainWindow::buttons[MAX_ROW + 5][MAX_COL + 5];
 QLabel *MainWindow::_status;
 QButtonGroup *MainWindow::btn_group = new QButtonGroup();
 QFutureWatcher<std::pair<int, int> > *MainWindow::watcher = new QFutureWatcher<std::pair<int, int> >();
-QVBoxLayout *MainWindow::vBoxLayout;
-QHBoxLayout *MainWindow::hBoxLayout[MAX_ROW];
+QGridLayout *MainWindow::layout;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
       , ui(new Ui::MainWindow) {
     ui->setupUi(this);
-    setFixedSize(1000, 1200);
-    //this->setStyleSheet("QMainWindow {background-color:rgb(255, 150, 30)}");
-    vBoxLayout = new QVBoxLayout(this->centralWidget());
+    // Load the original pixmap into the member and apply a stretched background
+    bg_pixmap = QPixmap(":/board.jpg");
+    // perform initial background setup (will scale to fill the window without preserving aspect ratio)
+    updateBackground();
+    layout = new QGridLayout();
     checkerboard::wrapped_init();
     MainWindow::_status = new QLabel();
     btn_group->setExclusive(true);
     for (int i = 0; i < MAX_ROW; i++) {
-        hBoxLayout[i] = new QHBoxLayout();
         for (int j = 0; j < MAX_COL; j++) {
             buttons[i][j] = new QPushButton();
-            buttons[i][j]->setStyleSheet("QPushButton{background-color:rgb(128,128,128);font-size:20pt;}");
+            buttons[i][j]->setFixedSize(50,50);
+            // make the button visually transparent and borderless while keeping font size
+            buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;}");
+            buttons[i][j]->setFlat(true);
             buttons[i][j]->setContentsMargins(0, 0, 0, 0);
             buttons[i][j]->setProperty("is_ocurred", false);
             btn_group->addButton(buttons[i][j], checkerboard::enc_id(i, j));
-            hBoxLayout[i]->addWidget(buttons[i][j]);
+            layout->addWidget(buttons[i][j], i, j);
         }
-        vBoxLayout->addLayout(hBoxLayout[i]);
     }
+    // set fixed spacing between grid cells to 11 (horizontal and vertical)
+    layout->setHorizontalSpacing(19);
+    layout->setVerticalSpacing(19);
+    layout->setContentsMargins(14, 9, 9, 14);
+    this->centralWidget()->setLayout(layout);
+    qDebug() << this->width() << this->height();//2
     QObject::connect(btn_group, &QButtonGroup::idClicked, this, &MainWindow::try_add_chess);
     connect(watcher, &QFutureWatcher<std::pair<int, int> >::finished, this, &MainWindow::task_finished);
     checkerboard::player_decide();
@@ -48,7 +56,8 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::forbid_buttons() {
     for (int i = 0; i < MAX_ROW; i++) {
         for (int j = 0; j < MAX_COL; j++) {
-            buttons[i][j]->setStyleSheet("QPushButton{background-color:rgb(128,128,128);font-size:20pt;}");
+            // keep buttons transparent and borderless; show a disabled-looking text color
+            buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;color:rgb(160,160,160);}");
             buttons[i][j]->setEnabled(false);
         }
     }
@@ -83,7 +92,8 @@ void MainWindow::try_add_chess(int id) {
     } else {
         buttons[row][col]->setText(WHITE_ICON);
     }
-    buttons[row][col]->setStyleSheet("QPushButton{background-color:rgb(128,228,128);font-size:20pt;}");
+    // ensure placed piece remains on a transparent, borderless button
+    buttons[row][col]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;}");
     checkerboard::add_chess(row, col, checkerboard::now_player());
     if (checkerboard::is_game_over(row, col)) {
         forbid_buttons();
@@ -116,4 +126,28 @@ void MainWindow::task_finished() {
     //try_add_chess(x*MAX_COL+y);
     buttons[x][y]->click();
     //buttons[x][y]->setEnabled(false);
+}
+
+// Add implementations for updateBackground and resizeEvent to enable stretch-fill behavior
+void MainWindow::updateBackground() {
+    if (bg_pixmap.isNull()) {
+        return;
+    }
+    QSize targetSize = this->centralWidget() ? this->centralWidget()->size() : this->size();
+    QPixmap scaled = bg_pixmap.scaled(targetSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QPalette palette;
+    palette.setBrush(QPalette::Window, QBrush(scaled));
+    if (this->centralWidget()) {
+        this->centralWidget()->setAutoFillBackground(true);
+        this->centralWidget()->setPalette(palette);
+    } else {
+        this->setAutoFillBackground(true);
+        this->setPalette(palette);
+    }
+    //this->setFixedSize(600,600);
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event) {
+    QMainWindow::resizeEvent(event);
+    updateBackground();
 }

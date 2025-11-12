@@ -82,6 +82,7 @@ __global__ void clac_single_pos(int ply) {
         else _ans += SCORES[tmp];
     }
     cuda_ans[x][y]=_ans;
+
     //为提升性能重复利用
     tri_count = 0, _ans = 0;
     for (int i = 1; i <= MAX_DIRECT; i++) {
