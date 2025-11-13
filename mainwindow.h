@@ -2,13 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "checkerboard.h"
 #include<QPushButton>
-#include <QButtonGroup>
-#include <QFutureWatcher>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QFuture>
 #include<QLabel>
 #include <QtConcurrent>
 #include <QPixmap>
@@ -16,7 +10,11 @@
 #include <QGridLayout>
 #define BLACK_ICON "\u26AB"
 #define WHITE_ICON "\u26AA"
-
+#define MAX_ROW 15
+#define MAX_COL 15
+#define EMPTY_POS 0
+#define BLACK_POS 1
+#define WHITE_POS (-1)
 QT_BEGIN_NAMESPACE
 
 namespace Ui {
@@ -27,28 +25,27 @@ QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
-
+public slots:
+    void forbid_buttons();
+    void enable_buttons();
+signals:
+    void deside_player();
 public:
+    static QPushButton *buttons[MAX_ROW][MAX_COL];
+    static QLabel *_status;
+
     MainWindow(QWidget *parent = nullptr);
 
     ~MainWindow();
 
 private:
-    static QFutureWatcher<std::pair<int, int> > *watcher;
     Ui::MainWindow *ui;
 
-    static void try_add_chess(int);
 
-    static void enable_buttons();
 
-    static QPushButton *buttons[MAX_ROW + 5][MAX_COL + 5];
     static QButtonGroup *btn_group;
     static QGridLayout *layout;
-    static QLabel *_status;
 
-    static void forbid_buttons();
-
-    static void task_finished();
 
     // background pixmap used for scaling and filling the window
     QPixmap bg_pixmap;

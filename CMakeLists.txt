@@ -32,6 +32,8 @@ add_executable(gobang main.cpp
         cuda.cu
         libcuda.cuh
         res.qrc
+        viewmodel.cpp
+        viewmodel.h
 )
 target_link_libraries(gobang
         Qt::Core

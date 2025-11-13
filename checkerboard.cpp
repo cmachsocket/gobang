@@ -1,9 +1,8 @@
 #include "checkerboard.h"
 
 #include <list>
-#include <list>
 #include<QDebug>
-#include <utility>
+#include <stdlib.h>
 
 #include "libcuda.cuh"
 
@@ -32,7 +31,8 @@ int checkerboard::enc_id(int x, int y) {
 }
 
 void checkerboard::player_decide() {
-    person_player = WHITE_POS;
+    srand(time(NULL));
+    person_player = rand()%2? BLACK_POS:WHITE_POS;
 }
 
 void checkerboard::add_chess(int x, int y, int ply) {
@@ -108,7 +108,7 @@ std::pair<int, int> checkerboard::solve_find(int x, int y) {
 
     return std::make_pair(tar_x, tar_y);
 }
-inline bool checkerboard::cmp(std::pair<int,int> x,std::pair<int,int> y) {
+inline bool checkerboard::cmp(const std::pair<int,int> &x, const std::pair<int,int> &y) {
     return board_access[x.first][x.second]>board_access[y.first][y.second];
 
 }

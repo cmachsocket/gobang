@@ -47,7 +47,7 @@ __device__ __inline__ int empty_extend(int direct, int _player, int x, int y, in
 }
 
 __device__ __inline__ int clac_extend(int direct, int x, int y, int ply, int cuda_step_x[], int cuda_step_y[]) {
-    int count = 0, is_empty = 0, empty_extend_tot = 0;
+    int count = 1, empty_extend_tot = 0;
     count += empty_extend(direct, ply, x + cuda_step_x[direct], y + cuda_step_y[direct], cuda_step_x, cuda_step_y);
     cuda_step_x[direct] = -cuda_step_x[direct], cuda_step_y[direct] = -cuda_step_y[direct]; //改变方向
     count += empty_extend(direct, ply, x + cuda_step_x[direct], y + cuda_step_y[direct], cuda_step_x, cuda_step_y);
@@ -58,9 +58,9 @@ __device__ __inline__ int clac_extend(int direct, int x, int y, int ply, int cud
     // is_empty = count / EMPTY_SELF;
     // count = count % EMPTY_SELF;
 
-    if (cuda_board[x][y] == EMPTY_POS) {
-        count ++;
-    }
+    // if (cuda_board[x][y] == EMPTY_POS) {
+    //     count ++;
+    // }
     if (empty_extend_tot)count++;
     return count;
 }
@@ -72,7 +72,7 @@ __global__ void clac_single_pos(int ply) {
     // if (cuda_board[x][y]==EMPTY_POS and cuda_board_access[x][y]) {
     //     printf("A");
     // }
-    if (y >= MAX_COL or cuda_board[x][y] != EMPTY_POS or !cuda_board_access[x][y]) {
+    if (y >= MAX_COL  or !cuda_board_access[x][y]) {
         return;
     }
     int cuda_step_x[MAX_DIRECT + 1]{0, 1, -1, 0, 1};
