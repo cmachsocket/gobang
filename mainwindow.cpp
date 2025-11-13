@@ -21,7 +21,6 @@ MainWindow::MainWindow(QWidget *parent)
     // perform initial background setup (will scale to fill the window without preserving aspect ratio)
     updateBackground();
     layout = new QGridLayout();
-    checkerboard::wrapped_init();
     MainWindow::_status = new QLabel();
     btn_group->setExclusive(true);
     for (int i = 0; i < MAX_ROW; i++) {

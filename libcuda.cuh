@@ -20,8 +20,7 @@
  __device__ int cuda_board[MAX_ROW][MAX_COL];
  __device__ int cuda_board_access[MAX_ROW][MAX_COL];
 __managed__ int cuda_ans[MAX_ROW][MAX_COL];
- __device__ int cuda_step_x[MAX_DIRECT + 1] ;
- __device__ int cuda_step_y[MAX_DIRECT + 1];
+
 
 // Declare device_scores as extern __constant__ when compiling with NVCC. Define it in cuda.cu.
 #ifdef __CUDACC__
@@ -30,11 +29,9 @@ __managed__ int cuda_ans[MAX_ROW][MAX_COL];
 #else
   #define SCORES scores
 #endif
-__global__ void init();
-extern "C" void cuda_init();
 CUDA_DEVICE CUDA_INLINE bool cuda_is_inside(int x, int y);
-CUDA_DEVICE CUDA_INLINE int empty_extend(int direct,int _player, int x, int y);
-CUDA_DEVICE CUDA_INLINE int clac_extend(int direct, int x, int y , int ply);
+CUDA_DEVICE CUDA_INLINE int empty_extend(int direct,int _player, int x, int y,int cuda_step_x[],int cuda_step_y[]);
+CUDA_DEVICE CUDA_INLINE int clac_extend(int direct, int x, int y , int ply,int cuda_step_x[],int cuda_step_y[]);
 CUDA_GLOBAL void clac_single_pos(int ply);
 extern "C"
 int G_evaluate(int person_player) ;

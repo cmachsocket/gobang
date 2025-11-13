@@ -170,6 +170,3 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
     }
 }
 
-void checkerboard::wrapped_init() {
-    cuda_init();
-}
