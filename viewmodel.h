@@ -6,7 +6,8 @@
 #define GOBANG_VIEWMODEL_H
 #include <QObject>
 #include <QFutureWatcher>
-
+#define BLACK_ICON "\u26AB"
+#define WHITE_ICON "\u26AA"
 class Viewmodel : public QObject {
     Q_OBJECT
 signals:

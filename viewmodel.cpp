@@ -4,8 +4,7 @@
 
 #include "checkerboard.h"
 #include "viewmodel.h"
-#include "mainwindow.h"
-
+#include <QtConcurrent>
 
 void Viewmodel::try_add_chess(int id) {
     //QMessageBox message(QMessageBox::NoIcon, "RESULT", checkerboard::now_person_player()?"YOU WIN!":"YOU LOSE!");
