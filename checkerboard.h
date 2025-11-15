@@ -40,9 +40,7 @@ public:
 
     static std::pair<int, int> solve_find(int, int);
 
-    static int enc_id(int, int);
-
-    static void dec_id(int, int &, int &);
+    static int wrapped_G();
     static int board[MAX_ROW ][MAX_COL ];
     static int board_access[MAX_ROW][MAX_COL];
     static int check_ans[MAX_ROW][MAX_COL];

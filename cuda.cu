@@ -12,14 +12,15 @@ int G_evaluate(int person_player) {
     //printf("%d nn\n",cuda_board[7][7]);
     clac_single_pos<<<MAX_ROW, 32>>>(-person_player);
     cudaDeviceSynchronize();
+    cudaMemcpyFromSymbol(checkerboard::check_ans, cuda_ans, bytes);
     for (int x = 0; x < MAX_ROW; x++) {
         for (int y = 0; y < MAX_COL; y++) {
             //collect_ans+=checkerboard::evaluate_ans[x][y];
-            collect_ans += cuda_ans[x][y];
+            collect_ans += checkerboard::check_ans[x][y];
         }
     }
 
-    cudaMemcpyFromSymbol(checkerboard::check_ans, cuda_ans, bytes);
+    //cudaMemcpyFromSymbol(checkerboard::check_ans, cuda_ans, bytes);
     //puts("!!!");
     return collect_ans;
 }
@@ -28,41 +29,33 @@ __device__ __inline__ bool cuda_is_inside(int x, int y) {
     return ((x >= 0 and x < MAX_ROW) and (y >= 0 and y < MAX_COL));
 }
 
-__device__ __inline__ int empty_extend(int direct, int _player, int x, int y, int cuda_step_x[], int cuda_step_y[]) {
-    int count = 0, did_extend = 0;
-    // for (int i=1;i<=4;i++) {
-    //     printf("%d %d\n",cuda_step_x[i],cuda_step_y[i]);
-    // }
-    for (; cuda_is_inside(x, y) and cuda_board[x][y] == _player;
-           count++, x += cuda_step_x[direct], y += cuda_step_y[direct], did_extend = 1) {
+__device__ __inline__ pair empty_extend(int direct, int _player, int x, int y, int cuda_step_x[], int cuda_step_y[]) {
+    int count = 0, extend_count = 0;
+    if (!cuda_is_inside(x, y) or cuda_board[x][y] != _player) {
+        return {0,0};
     }
-    if (cuda_is_inside(x, y)) {
-        //这里有两种情况：自身就是空点，扩展到一个空点
-        if (did_extend and cuda_board[x][y] == EMPTY_POS) {
-            count += EMPTY_EXTEND;
+    for (; cuda_is_inside(x, y) and cuda_board[x][y] == _player;
+           count++, x += cuda_step_x[direct], y += cuda_step_y[direct]) {
+    }
+    if (cuda_is_inside(x, y) and cuda_board[x][y] == EMPTY_POS) { //可以继续从空点扩展
+        for (x += cuda_step_x[direct], y += cuda_step_y[direct],extend_count++;
+            cuda_is_inside(x,y) and cuda_board[x][y] == _player;
+            extend_count++, x += cuda_step_x[direct], y += cuda_step_y[direct]) {
         }
     }
     //printf("%d\n",count);
-    return count;
+    return {count,extend_count};
 }
 
 __device__ __inline__ int clac_extend(int direct, int x, int y, int ply, int cuda_step_x[], int cuda_step_y[]) {
-    int count = 1, empty_extend_tot = 0;
-    count += empty_extend(direct, ply, x + cuda_step_x[direct], y + cuda_step_y[direct], cuda_step_x, cuda_step_y);
+    //int count = 1, empty_extend_tot_1 = 0, empty_extend_tot_2 = 0;
+
+    auto [count_1,empty_extend_tot_1] = empty_extend(direct, ply, x + cuda_step_x[direct], y + cuda_step_y[direct], cuda_step_x, cuda_step_y);
     cuda_step_x[direct] = -cuda_step_x[direct], cuda_step_y[direct] = -cuda_step_y[direct]; //改变方向
-    count += empty_extend(direct, ply, x + cuda_step_x[direct], y + cuda_step_y[direct], cuda_step_x, cuda_step_y);
-    empty_extend_tot = count / EMPTY_EXTEND;
 
-    //printf("%d %d %d %d|** %d %d %d %d\n",x,y,ply,direct,count,empty_extend_tot,cuda_board[x][y]==EMPTY_POS);
-    count = count % EMPTY_EXTEND;
-    // is_empty = count / EMPTY_SELF;
-    // count = count % EMPTY_SELF;
+    auto [count_2,empty_extend_tot_2] = empty_extend(direct, ply, x + cuda_step_x[direct], y + cuda_step_y[direct], cuda_step_x, cuda_step_y);
+    return count_1 + count_2 + 1 + max(empty_extend_tot_1 , empty_extend_tot_2);//决定扩展方向
 
-    // if (cuda_board[x][y] == EMPTY_POS) {
-    //     count ++;
-    // }
-    if (empty_extend_tot)count++;
-    return count;
 }
 
 __global__ void clac_single_pos(int ply) {
@@ -72,7 +65,7 @@ __global__ void clac_single_pos(int ply) {
     // if (cuda_board[x][y]==EMPTY_POS and cuda_board_access[x][y]) {
     //     printf("A");
     // }
-    if (y >= MAX_COL  or !cuda_board_access[x][y]) {
+    if (y >= MAX_COL or !cuda_board[x][y]==EMPTY_POS  or !cuda_board_access[x][y]) {
         return;
     }
     int cuda_step_x[MAX_DIRECT + 1]{0, 1, -1, 0, 1};
@@ -82,6 +75,7 @@ __global__ void clac_single_pos(int ply) {
     for (int i = 1; i <= MAX_DIRECT; i++) {
         int tmp = clac_extend(i, x, y, ply, cuda_step_x, cuda_step_y);
         //if (tmp)printf("%d %d %d %d\n",x,y,ply,tmp);
+        if (tmp>5)tmp=5;
         if (tmp >= 4)tri_count++;
         if (tri_count > 1)_ans += SCORES[MAX_SCORE];
         else _ans += SCORES[tmp];

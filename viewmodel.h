@@ -28,6 +28,7 @@ public slots:
 public:
     QFutureWatcher<std::pair<int, int> > *watcher = new QFutureWatcher<std::pair<int, int> >();
     void task_finished();
+    void check_to_debug();
 };
 
 

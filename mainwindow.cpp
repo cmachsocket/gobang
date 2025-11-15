@@ -50,7 +50,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(viewmodel, &Viewmodel::requestButtonClick, this, [this](int r, int c){ buttons[r][c]->click(); });
     connect(viewmodel, &Viewmodel::requestButtonEnable, this, [this](int r, int c,bool status){ buttons[r][c]->setEnabled(status); });
     connect(viewmodel, &Viewmodel::setButtonOccurred, this, [this](int r, int c){ buttons[r][c]->setProperty("is_occurred", true); });
-    connect(viewmodel, &Viewmodel::setButtonText, this, [this](int r, int c,QString t){ buttons[r][c]->setText(t); });
+    connect(viewmodel, &Viewmodel::setButtonText, this, [this](int r, int c,QString t){
+        buttons[r][c]->setText(t);
+        buttons[r][c]->setStyleSheet("QPushButton{background: rgba(128,128,128,0.4);border:none;font-size:20pt;}");
+    });
     connect(viewmodel, &Viewmodel::NotifyMessageBox, this, [this](QString title,QString text){
         QMessageBox message(QMessageBox::NoIcon, title, text);
         message.exec();
@@ -72,6 +75,7 @@ void MainWindow::forbid_buttons() {
         for (int j = 0; j < MAX_COL; j++) {
             // keep buttons transparent and borderless; show a disabled-looking text color
             //buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;color:rgb(255,255,255);}");
+            buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;}");
             buttons[i][j]->setEnabled(false);
         }
     }
@@ -81,7 +85,6 @@ void MainWindow::enable_buttons() {
     for (int i = 0; i < MAX_ROW; i++) {
         for (int j = 0; j < MAX_COL; j++) {
             if ((buttons[i][j]->property("is_occurred")) == false) {
-
                 //buttons[i][j]->setText(QString::number(checkerboard::check_ans[i][j]));
                 buttons[i][j]->setEnabled(true);
             }

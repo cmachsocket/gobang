@@ -21,14 +21,7 @@ int checkerboard::tar_y = 0;
 checkerboard::checkerboard() {
 }
 
-void checkerboard::dec_id(int id, int &row, int &col) {
-    row = id / MAX_COL;
-    col = id % MAX_COL;
-}
 
-int checkerboard::enc_id(int x, int y) {
-    return x * MAX_ROW + y;
-}
 
 void checkerboard::player_decide() {
     srand(time(NULL));
@@ -41,7 +34,7 @@ void checkerboard::add_chess(int x, int y, int ply) {
     for (int i = x - SCALE; i <= x + SCALE; i++) {
         for (int j = y - SCALE; j <= y + SCALE; j++) {
             if (is_inside(i, j)) {
-                board_access[i][j]++;
+                board_access[i][j]+=std::max(abs(i-x),abs(j-y));
             }
         }
     }
@@ -52,7 +45,7 @@ void checkerboard::del_chess(int x, int y, int ply) {
         for (int j = y - SCALE; j <= y + SCALE; j++) {
             if (is_inside(i, j)) {
                 //内存泄漏！！！
-                board_access[i][j]--;
+                board_access[i][j]-=std::max(abs(i-x),abs(j-y));;
             }
         }
     }
@@ -104,7 +97,7 @@ int checkerboard::now_player() {
 std::pair<int, int> checkerboard::solve_find(int x, int y) {
     //depth=0,is_max=1;
     qDebug() << alpha_beta(-1, -1, -INF,INF, 1, 1);
-    qDebug()<<G_evaluate(person_player)<<"?";
+
 
     return std::make_pair(tar_x, tar_y);
 }
@@ -169,4 +162,6 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
         return beta;
     }
 }
-
+int checkerboard::wrapped_G() { //调试代码暴露接口
+    return G_evaluate(person_player);
+}
