@@ -31,17 +31,16 @@ __device__ __inline__ bool cuda_is_inside(int x, int y) {
 
 __device__ __inline__ pair empty_extend(int direct, int _player, int x, int y, int cuda_step_x[], int cuda_step_y[]) {
     int count = 0, extend_count = 0;
-    if (!cuda_is_inside(x, y) or cuda_board[x][y] != _player) {
-        return {0,0};
-    }
     for (; cuda_is_inside(x, y) and cuda_board[x][y] == _player;
            count++, x += cuda_step_x[direct], y += cuda_step_y[direct]) {
+
     }
-    if (cuda_is_inside(x, y) and cuda_board[x][y] == EMPTY_POS) { //可以继续从空点扩展
-        for (x += cuda_step_x[direct], y += cuda_step_y[direct],extend_count++;
+    if (cuda_is_inside(x, y) and cuda_board[x][y] == EMPTY_POS) { //可以继续从空点扩展,前提是扩展后有对应棋子
+        for (x += cuda_step_x[direct], y += cuda_step_y[direct];
             cuda_is_inside(x,y) and cuda_board[x][y] == _player;
             extend_count++, x += cuda_step_x[direct], y += cuda_step_y[direct]) {
         }
+        if (count or extend_count)extend_count++;
     }
     //printf("%d\n",count);
     return {count,extend_count};
