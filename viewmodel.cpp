@@ -30,7 +30,7 @@ void Viewmodel::try_add_chess(int id) {
         emit statusTextChanged("我方回合");\
     }
     checkerboard::change_player();
-    qDebug() << "Your pos:" << row << col;
+    //qDebug() << "Your pos:" << row << col;
     //check_to_debug();
 }
 
@@ -55,8 +55,8 @@ void Viewmodel::check_to_debug() {
     for (int i = 0; i < MAX_ROW; i++) {
         for (int j = 0; j < MAX_COL; j++) {
             if (checkerboard::board[i][j] == EMPTY_POS) {
-                printf("%d ", checkerboard::check_ans[i][j]);
-                emit setButtonText(i, j, QString::number(checkerboard::check_ans[i][j]));
+                printf("%d ", checkerboard::board_access[i][j]);
+                emit setButtonText(i, j, QString::number(checkerboard::board_access[i][j]));
             }
         }
         puts("");

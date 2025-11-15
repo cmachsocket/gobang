@@ -1,5 +1,5 @@
 #include "checkerboard.h"
-
+#include <chrono>
 #include <list>
 #include<QDebug>
 #include <stdlib.h>
@@ -31,7 +31,8 @@ void checkerboard::add_chess(int x, int y, int ply) {
     for (int i = x - SCALE; i <= x + SCALE; i++) {
         for (int j = y - SCALE; j <= y + SCALE; j++) {
             if (is_inside(i, j)) {
-                board_access[i][j]+=std::max(abs(i-x),abs(j-y));
+                //board_access[i][j]+=std::max(abs(i-x),abs(j-y));
+               board_access[i][j]+=std::max(SCALE-abs(i-x)+1,SCALE-abs(j-y)+1);
             }
         }
     }
@@ -41,8 +42,9 @@ void checkerboard::del_chess(int x, int y, int ply) {
     for (int i = x - SCALE; i <= x + SCALE; i++) {
         for (int j = y - SCALE; j <= y + SCALE; j++) {
             if (is_inside(i, j)) {
-                //内存泄漏！！！
-                board_access[i][j]-=std::max(abs(i-x),abs(j-y));;
+
+                //board_access[i][j]-=std::max(abs(i-x),abs(j-y));
+                board_access[i][j]-=std::max(SCALE-abs(i-x)+1,SCALE-abs(j-y)+1);
             }
         }
     }
@@ -93,9 +95,12 @@ int checkerboard::now_player() {
 
 std::pair<int, int> checkerboard::solve_find(int x, int y) {
     //depth=0,is_max=1;
-    qDebug() << alpha_beta(-1, -1, -INF,INF, 1, 1);
+    auto start = std::chrono::high_resolution_clock::now();
+    alpha_beta(-1, -1, -INF,INF, 1, 1);
 
-
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    qDebug()<<duration.count();
     return std::make_pair(tar_x, tar_y);
 }
 inline bool checkerboard::cmp(const std::pair<int,int> &x, const std::pair<int,int> &y) {
@@ -114,7 +119,6 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
     for (int i = 0; i < MAX_ROW; i++) {
         for (int j = 0; j < MAX_COL; j++) {
             if (board_access[i][j] and put_chess_valid(i, j)) {
-                //assert(i==7 and j==7 and put_chess_valid(i, j));
                 access_chess_list.emplace_back(i, j);
             }
         }
@@ -124,10 +128,7 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
         for (auto it: access_chess_list) {
             int i = it.first, j = it.second;
             add_chess(i, j, -person_player);
-            //is_max=!is_max;depth++;
             int tmp = alpha_beta(i, j, alph, beta, depth + 1, -is_max);
-            //if (depth == 1)
-            //qDebug() << tar_x << tar_y << alph << tmp << i << j;
             if (tmp > alph) {
                 alph = tmp;
 
@@ -135,24 +136,18 @@ int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is
                     tar_x = i, tar_y = j;
                 }
             }
-            //alph = std::max(alph, );
-            //is_max=!is_max;depth--;
             del_chess(i, j, -person_player);
             if (alph >= beta) break;
         }
         access_chess_list.clear();
-        //assert(alph!=1);
         return alph;
     } else {
         for (auto it: access_chess_list) {
             int i = it.first, j = it.second;
             add_chess(i, j, person_player);
-            //is_max=!is_max;depth++;
             beta = std::min(beta, alpha_beta(i, j, alph, beta, depth + 1, -is_max));
-            //is_max=!is_max;depth--;
             del_chess(i, j, person_player);
             if (alph >= beta) break;
-            //assert(beta!=1);
         }
         access_chess_list.clear();
         return beta;

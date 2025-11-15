@@ -12,7 +12,7 @@
 #define WHITE_POS (-1)
 #define TARGET_DEP 5
 #define SCALE 2
-#define TIME_LOSE 10
+#define TIME_LOSE 225
 #define MAX_SCORE 5
 
 #define MAX_DIRECT 4

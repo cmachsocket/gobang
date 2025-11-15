@@ -1,5 +1,6 @@
 #include "libcuda.cuh"
 #include "checkerboard.h"
+#define SELF_SCORE 1
 __constant__ int SCORES[6]{0, 1, 10, 100, 1000, 10000};
 __device__ int cuda_board[MAX_ROW][MAX_COL];
 __device__ int cuda_board_access[MAX_ROW][MAX_COL];
@@ -13,10 +14,10 @@ int G_evaluate(int person_player) {
     clac_single_pos<<<MAX_ROW, CUDA_GROUP>>>(-person_player); //32是一组核心数
     cudaDeviceSynchronize();
 
-    cudaMemcpyFromSymbol(checkerboard::check_ans, cuda_ans, bytes);
+    //cudaMemcpyFromSymbol(checkerboard::check_ans, cuda_ans, bytes);
     for (int x = 0; x < MAX_ROW; x++) {
         for (int y = 0; y < MAX_COL; y++) {
-            collect_ans += checkerboard::check_ans[x][y];
+            collect_ans += cuda_ans[x][y];
         }
     }
 
@@ -49,7 +50,7 @@ __device__ __inline__ int clac_extend(int direct, int x, int y, int ply, int cud
     cuda_step_x[direct] = -cuda_step_x[direct], cuda_step_y[direct] = -cuda_step_y[direct]; //改变方向
 
     auto [count_2,empty_extend_tot_2] = empty_extend(direct, ply, x + cuda_step_x[direct], y + cuda_step_y[direct], cuda_step_x, cuda_step_y);
-    return count_1 + count_2 + 1 + max(empty_extend_tot_1 , empty_extend_tot_2);//决定扩展方向
+    return count_1 + count_2 + SELF_SCORE + max(empty_extend_tot_1 , empty_extend_tot_2);//决定扩展方向
 
 }
 
