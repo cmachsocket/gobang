@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include<QPushButton>
 #include<QLabel>
-#include <QtConcurrent>
 #include <QPixmap>
 #include <QResizeEvent>
 #include <QGridLayout>
@@ -26,13 +25,12 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public slots:
-    void forbid_buttons();
-    void enable_buttons();
+    static void forbid_buttons();
+    static void enable_buttons();
 signals:
     void deside_player();
 public:
-    static QPushButton *buttons[MAX_ROW][MAX_COL];
-    static QLabel *_status;
+
 
     MainWindow(QWidget *parent = nullptr);
 
@@ -40,9 +38,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
-
-
-
+    static QPushButton *buttons[MAX_ROW][MAX_COL];
+    static QLabel *_status;
     static QButtonGroup *btn_group;
     static QGridLayout *layout;
 

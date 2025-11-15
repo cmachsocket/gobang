@@ -1,6 +1,5 @@
 #pragma once
 #include<algorithm>
-#include <list>
 #ifndef CHECKERBOARD_H
 #define CHECKERBOARD_H
 
@@ -20,7 +19,7 @@
 #define EMPTY_SELF 100
 #define EMPTY_EXTEND 1000
 
-const int scores[5 + 1]{0, 1, 10, 100, 1000, 10000};
+constexpr int scores[5 + 1]{0, 1, 10, 100, 1000, 10000};
 
 class checkerboard {
 public:

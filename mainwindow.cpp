@@ -15,12 +15,11 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
       , ui(new Ui::MainWindow) {
     ui->setupUi(this);
+    viewmodel = new Viewmodel();
     // Load the original pixmap into the member and apply a stretched background
     bg_pixmap = QPixmap(":/board.jpg");
-    // perform initial background setup (will scale to fill the window without preserving aspect ratio)
     updateBackground();
     layout = new QGridLayout();
-    viewmodel = new Viewmodel();
     MainWindow::_status = new QLabel();
     btn_group->setExclusive(true);
     for (int i = 0; i < MAX_ROW; i++) {
@@ -29,7 +28,6 @@ MainWindow::MainWindow(QWidget *parent)
             buttons[i][j]->setFixedSize(50,50);
             // make the button visually transparent and borderless while keeping font size
             buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;}");
-
             buttons[i][j]->setFlat(true);
             buttons[i][j]->setContentsMargins(0, 0, 0, 0);
             buttons[i][j]->setProperty("is_occurred", false);
@@ -46,15 +44,15 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->addPermanentWidget(_status);
     connect(btn_group, &QButtonGroup::idClicked, viewmodel, &Viewmodel::try_add_chess);
     connect(viewmodel->watcher, &QFutureWatcher<std::pair<int, int> >::finished, viewmodel, &Viewmodel::task_finished);
-    connect(viewmodel, &Viewmodel::statusTextChanged, this, [this](const QString &t){ _status->setText(t); });
-    connect(viewmodel, &Viewmodel::requestButtonClick, this, [this](int r, int c){ buttons[r][c]->click(); });
-    connect(viewmodel, &Viewmodel::requestButtonEnable, this, [this](int r, int c,bool status){ buttons[r][c]->setEnabled(status); });
-    connect(viewmodel, &Viewmodel::setButtonOccurred, this, [this](int r, int c){ buttons[r][c]->setProperty("is_occurred", true); });
-    connect(viewmodel, &Viewmodel::setButtonText, this, [this](int r, int c,QString t){
+    connect(viewmodel, &Viewmodel::statusTextChanged, this, [](const QString &t){ _status->setText(t); });
+    connect(viewmodel, &Viewmodel::requestButtonClick, this, [](int r, int c){ buttons[r][c]->click(); });
+    connect(viewmodel, &Viewmodel::requestButtonEnable, this, [](int r, int c,bool status){ buttons[r][c]->setEnabled(status); });
+    connect(viewmodel, &Viewmodel::setButtonOccurred, this, [](int r, int c){ buttons[r][c]->setProperty("is_occurred", true); });
+    connect(viewmodel, &Viewmodel::setButtonText, this, [](int r, int c,const QString &t){
         buttons[r][c]->setText(t);
         buttons[r][c]->setStyleSheet("QPushButton{background: rgba(128,128,128,0.4);border:none;font-size:20pt;}");
     });
-    connect(viewmodel, &Viewmodel::NotifyMessageBox, this, [this](QString title,QString text){
+    connect(viewmodel, &Viewmodel::NotifyMessageBox, this, [](const QString &title,const QString &text){
         QMessageBox message(QMessageBox::NoIcon, title, text);
         message.exec();
         qApp->quit();
@@ -71,22 +69,22 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::forbid_buttons() {
-    for (int i = 0; i < MAX_ROW; i++) {
-        for (int j = 0; j < MAX_COL; j++) {
+    for (auto & button_col : buttons) {
+        for (auto & button : button_col) {
             // keep buttons transparent and borderless; show a disabled-looking text color
             //buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;color:rgb(255,255,255);}");
-            buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;}");
-            buttons[i][j]->setEnabled(false);
+            button->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;}");
+            button->setEnabled(false);
         }
     }
 }
 
 void MainWindow::enable_buttons() {
-    for (int i = 0; i < MAX_ROW; i++) {
-        for (int j = 0; j < MAX_COL; j++) {
-            if ((buttons[i][j]->property("is_occurred")) == false) {
+    for (auto & button_col : buttons) {
+        for (auto & button : button_col) {
+            if ((button->property("is_occurred")) == false) {
                 //buttons[i][j]->setText(QString::number(checkerboard::check_ans[i][j]));
-                buttons[i][j]->setEnabled(true);
+                button->setEnabled(true);
             }
         }
     }

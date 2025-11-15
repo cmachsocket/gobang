@@ -3,7 +3,6 @@
 #include <list>
 #include<QDebug>
 #include <stdlib.h>
-
 #include "libcuda.cuh"
 
 int checkerboard::player = BLACK_POS;
@@ -18,19 +17,17 @@ int checkerboard::check_ans[MAX_ROW][MAX_COL];
 int checkerboard::tar_x = 0;
 int checkerboard::tar_y = 0;
 
-checkerboard::checkerboard() {
-}
+checkerboard::checkerboard() = default;
 
 
 
 void checkerboard::player_decide() {
-    srand(time(NULL));
+    srand(time(nullptr));
     person_player = rand()%2? BLACK_POS:WHITE_POS;
 }
 
 void checkerboard::add_chess(int x, int y, int ply) {
     board[x][y] = ply;
-    //printf("%d %d %d !!\n",x,y,board[x][y]);
     for (int i = x - SCALE; i <= x + SCALE; i++) {
         for (int j = y - SCALE; j <= y + SCALE; j++) {
             if (is_inside(i, j)) {
@@ -106,7 +103,6 @@ inline bool checkerboard::cmp(const std::pair<int,int> &x, const std::pair<int,i
 
 }
 int checkerboard::alpha_beta(int x, int y, int alph, int beta, int depth, int is_max) {
-    //printf("%d %d\n",alph,beta);
     if (is_game_over(x, y)) {
         return -is_max * scores[MAX_SCORE] * TIME_LOSE;
     }
