@@ -3,7 +3,6 @@
 #include "viewmodel.h"
 #include<QButtonGroup>
 #include<QMessageBox>
-#include<QDebug>
 #include <QVariant>
 
 QPushButton *MainWindow::buttons[MAX_ROW ][MAX_COL ];
@@ -16,7 +15,6 @@ MainWindow::MainWindow(QWidget *parent)
       , ui(new Ui::MainWindow) {
     ui->setupUi(this);
     viewmodel = new Viewmodel();
-    // Load the original pixmap into the member and apply a stretched background
     bg_pixmap = QPixmap(":/board.jpg");
     updateBackground();
     layout = new QGridLayout();
@@ -26,7 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
         for (int j = 0; j < MAX_COL; j++) {
             buttons[i][j] = new QPushButton();
             buttons[i][j]->setFixedSize(50,50);
-            // make the button visually transparent and borderless while keeping font size
             buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;}");
             buttons[i][j]->setFlat(true);
             buttons[i][j]->setContentsMargins(0, 0, 0, 0);
@@ -35,12 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
             layout->addWidget(buttons[i][j], i, j);
         }
     }
-    // set fixed spacing between grid cells to 11 (horizontal and vertical)
     layout->setHorizontalSpacing(19);
     layout->setVerticalSpacing(19);
     layout->setContentsMargins(14, 9, 9, 14);
     this->centralWidget()->setLayout(layout);
-    qDebug() << this->width() << this->height();//2
     statusBar()->addPermanentWidget(_status);
     connect(btn_group, &QButtonGroup::idClicked, viewmodel, &Viewmodel::try_add_chess);
     connect(viewmodel->watcher, &QFutureWatcher<std::pair<int, int> >::finished, viewmodel, &Viewmodel::task_finished);
@@ -61,18 +56,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(viewmodel,&Viewmodel::ButtonEnable,this,&MainWindow::enable_buttons);
     connect(this, &MainWindow::deside_player, viewmodel, &Viewmodel::to_deside_player);
     emit deside_player();
-    //player_decide!!!!
-    /*
-     *
-     *
-     */
 }
 
 void MainWindow::forbid_buttons() {
     for (auto & button_col : buttons) {
         for (auto & button : button_col) {
-            // keep buttons transparent and borderless; show a disabled-looking text color
-            //buttons[i][j]->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;color:rgb(255,255,255);}");
             button->setStyleSheet("QPushButton{background:transparent;border:none;font-size:20pt;}");
             button->setEnabled(false);
         }
@@ -83,7 +71,6 @@ void MainWindow::enable_buttons() {
     for (auto & button_col : buttons) {
         for (auto & button : button_col) {
             if ((button->property("is_occurred")) == false) {
-                //buttons[i][j]->setText(QString::number(checkerboard::check_ans[i][j]));
                 button->setEnabled(true);
             }
         }
@@ -94,7 +81,6 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-// Add implementations for updateBackground and resizeEvent to enable stretch-fill behavior
 void MainWindow::updateBackground() {
     if (bg_pixmap.isNull()) {
         return;
@@ -110,7 +96,6 @@ void MainWindow::updateBackground() {
         this->setAutoFillBackground(true);
         this->setPalette(palette);
     }
-    //this->setFixedSize(600,600);
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event) {

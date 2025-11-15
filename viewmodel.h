@@ -1,7 +1,3 @@
-//
-// Created by cmach_socket on 2025/11/13.
-//
-
 #ifndef GOBANG_VIEWMODEL_H
 #define GOBANG_VIEWMODEL_H
 #include <QFutureWatcher>

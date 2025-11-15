@@ -47,9 +47,6 @@ private:
     checkerboard();
 
     static int alpha_beta(int, int, int, int, int, int);
-
-    //static int depth,is_max;
-
     static int player, person_player, tar_x, tar_y;
     static int step_x[MAX_DIRECT + 1];
     static int step_y[MAX_DIRECT + 1];

@@ -42,9 +42,6 @@ private:
     static QLabel *_status;
     static QButtonGroup *btn_group;
     static QGridLayout *layout;
-
-
-    // background pixmap used for scaling and filling the window
     QPixmap bg_pixmap;
     void updateBackground();
 

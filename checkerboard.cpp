@@ -1,8 +1,7 @@
 #include "checkerboard.h"
-#include <chrono>
 #include <list>
-#include<QDebug>
-#include <stdlib.h>
+#include<cstdlib>
+#include<ctime>
 #include "libcuda.cuh"
 
 int checkerboard::player = BLACK_POS;
@@ -12,8 +11,6 @@ int checkerboard::step_y[MAX_DIRECT + 1] = {0, 1, 1, 1, 0};
 int checkerboard::board[MAX_ROW][MAX_COL];
 int checkerboard::board_access[MAX_ROW][MAX_COL];
 int checkerboard::check_ans[MAX_ROW][MAX_COL];
-//int checkerboard::depth=1;
-//int checkerboard::is_max=1;
 int checkerboard::tar_x = 0;
 int checkerboard::tar_y = 0;
 
@@ -95,12 +92,12 @@ int checkerboard::now_player() {
 
 std::pair<int, int> checkerboard::solve_find(int x, int y) {
     //depth=0,is_max=1;
-    auto start = std::chrono::high_resolution_clock::now();
+    //auto start = std::chrono::high_resolution_clock::now();
     alpha_beta(-1, -1, -INF,INF, 1, 1);
 
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    qDebug()<<duration.count();
+    //auto end = std::chrono::high_resolution_clock::now();
+    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    //qDebug()<<duration.count();
     return std::make_pair(tar_x, tar_y);
 }
 inline bool checkerboard::cmp(const std::pair<int,int> &x, const std::pair<int,int> &y) {
