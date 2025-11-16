@@ -2,7 +2,7 @@
 #include <list>
 #include<cstdlib>
 #include<ctime>
-#include "libcpu.h"
+#include "libcuda.cuh"
 #include<chrono>
 #include<qdebug.h>
 
