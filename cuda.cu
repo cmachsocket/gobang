@@ -7,16 +7,7 @@ __constant__ int cuda_step_y[MAX_DIRECT + 1]{0, 1, 1, 1, 0};
 __device__ int cuda_board[MAX_ROW][MAX_COL];
 __device__ int cuda_board_access[MAX_ROW][MAX_COL];
 __managed__ int cuda_ans[MAX_ROW][MAX_COL];
-struct Control {
-    volatile int cmd;           // 0: idle, 1: start, 2: done, -1: exit(可选)
-    int ply;                    // 本批次评估的阵营
-    int result_sum;             // 设备端写入的汇总结果
-    int completed_blocks;       // 已完成块计数（设备端原子累加）
-};
 
-static Control* h_ctrl = nullptr;
-static Control* d_ctrl = nullptr;
-static bool g_workers_started = false;
 
 int G_evaluate(int person_player) {
     size_t bytes = MAX_ROW * MAX_COL * sizeof(int);
@@ -59,8 +50,6 @@ __device__ __inline__ pair empty_extend(int direct, int _player, int x, int y,in
 
 __device__ __inline__ int clac_extend(int direct, int x, int y, int ply, int cuda_step_x[], int cuda_step_y[]) {
     auto [count_1,empty_extend_tot_1] = empty_extend(direct, ply, x + cuda_step_x[direct], y + cuda_step_y[direct], 1);
-    cuda_step_x[direct] = -cuda_step_x[direct], cuda_step_y[direct] = -cuda_step_y[direct]; //改变方向
-
     auto [count_2,empty_extend_tot_2] = empty_extend(direct, ply, x - cuda_step_x[direct], y - cuda_step_y[direct],-1);
     return count_1 + count_2 + SELF_SCORE + max(empty_extend_tot_1 , empty_extend_tot_2);//决定扩展方向
 
@@ -69,8 +58,9 @@ __device__ __inline__ int clac_extend(int direct, int x, int y, int ply, int cud
 __global__ void clac_single_pos(int ply) {
     int x = static_cast<int>(blockIdx.x);
     int y = static_cast<int>(threadIdx.x);
+    if (y>=MAX_COL)return;
     cuda_ans[x][y] = 0;
-    if (y >= MAX_COL or !cuda_board[x][y]==EMPTY_POS  or !cuda_board_access[x][y]) {
+    if (cuda_board[x][y]!=EMPTY_POS  or !cuda_board_access[x][y]) {
         return;
     }
     int tri_count = 0, _ans = 0;
@@ -92,5 +82,5 @@ __global__ void clac_single_pos(int ply) {
         else _ans -= SCORES[tmp];
 
     }
-    cuda_ans[x][y] -= _ans;
+    cuda_ans[x][y] = _ans;
 }
