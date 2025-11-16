@@ -34,6 +34,8 @@ add_executable(gobang main.cpp
         res.qrc
         viewmodel.cpp
         viewmodel.h
+        libcpu.cpp
+        libcpu.h
 )
 target_link_libraries(gobang
         Qt::Core

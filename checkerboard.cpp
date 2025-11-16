@@ -2,7 +2,9 @@
 #include <list>
 #include<cstdlib>
 #include<ctime>
-#include "libcuda.cuh"
+#include "libcpu.h"
+#include<chrono>
+#include<qdebug.h>
 
 int checkerboard::player = BLACK_POS;
 int checkerboard::person_player;
@@ -91,13 +93,13 @@ int checkerboard::now_player() {
 }
 
 std::pair<int, int> checkerboard::solve_find(int x, int y) {
-    //depth=0,is_max=1;
-    //auto start = std::chrono::high_resolution_clock::now();
+    ///depth=0,is_max=1;
+    auto start = std::chrono::high_resolution_clock::now();
     alpha_beta(-1, -1, -INF,INF, 1, 1);
 
-    //auto end = std::chrono::high_resolution_clock::now();
-    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    //qDebug()<<duration.count();
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    qDebug()<<duration.count();
     return std::make_pair(tar_x, tar_y);
 }
 inline bool checkerboard::cmp(const std::pair<int,int> &x, const std::pair<int,int> &y) {
